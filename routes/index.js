@@ -11,7 +11,9 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/data', controller.getData);
+router.get('/data/:id', controller.getDataId);
 router.post('/data', controller.insertData);
 router.put('/data/:id', controller.changeData);
+router.delete('/data/:id', controller.deleteData);
 
 module.exports = router;

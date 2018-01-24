@@ -1,64 +1,108 @@
 var db = require('../db-config');
 
-var getData = (req, res) => {
-  console.log(req.body);
-  db.any('SELECT * FROM item')
-    .then((data) => res.json(data));
+function getData(req, res) {
+    console.log(req.body);
+    db.func('getData')
+        .then((data) => res.json(data));
+}
+
+function getDataId(req, res) {
+    const id = req.params.id;
+    console.log(id);
+    db.func('getDataId', [id])
+        .then((data) => {
+        if(!data.length) {
+        res.status(404).json(
+            {
+                content: [],
+            });
+        return
+        }
+    res.status(200).json(
+        {
+            content: data[0],
+            message: 'OK'
+        });
+    })
 }
 
 var insertData = (req, res) => {
-  console.log(req.body);
-  let err = {
-    condition:  false,
-    msg: []
-  };
-  if(!req.body.nome) {
-    err.condition = true;
-    err.msg.push('Nome é requirido')
-  }
-  if(!req.body.preco) {
-    err.condition = true;
-    err.msg.push('Preco é requirido');
-  }
-  if(err.condition) {
-    res.status(400).json({
-      error: err.msg.join(', ')
-    })
-  }
+    console.log(req.body);
+    let err = {
+        condition: false,
+        msg: []
+    };
+    if (!req.body.nome) {
+        err.condition = true;
+        err.msg.push('Nome é requirido')
+    }
+    if (!req.body.preco) {
+        err.condition = true;
+        err.msg.push('Preco é requirido');
+    }
+    if (err.condition) {
+        res.status(400).json({
+            error: err.msg.join(', ')
+        })
+    }
 
-  db.any(`INSERT INTO item (nome, preco) VALUES ($1,$2)`, [req.body.nome, req.body.preco])
-    .then((data) => res.json({
-      message: 'Inserido com sucesso'
-    }));
+    db.func(`insertData`, [req.body.nome, req.body.preco])
+        .then((data) => res.json(
+            {
+                content: data[0].insertdata.content,
+                message: data[0].insertdata.message
+            }
+            ));
 }
 
-var changeData = (req, res) => {
-  const id = req.params.id;
-  let err = {
-    condition:  false,
-    msg: []
-  };
-  if(!id) {
-    err.condition = true;
-    err.msg.push('ID é requirido');
-  }
-  if(err.condition) {
-    res.status(400).json({
-      error: err.msg.join(', ')
+function changeData(req, res) {
+    const id = req.params.id;
+    let err = {
+        condition: false,
+        msg: []
+    };
+    if (!id) {
+        err.condition = true;
+        err.msg.push('ID é requirido');
+    }
+    if (err.condition) {
+        res.status(400).json({
+            error: err.msg.join(', ')
+        });
+    }
+
+    db.func('changeData', [
+        id,
+        req.body.nome,
+        req.body.preco
+    ]).then((data) => {
+        res.status(200).json({
+            message: data[0].changedata.message,
+            nomeAntigo: data[0].changedata.nomeAntigo,
+            precoAntigo: data[0].changedata.precoAntigo
+        });
     });
-  }
+}
 
-  var resposta = db.any('SELECT * FROM changeData', [
-    id,
-    req.body.nome,
-    req.body.preco
-  ]);
+function deleteData(req, res) {
+    const id = req.params.id;
 
-  res.json(resposta);
+
+    db.func('deleteData', [
+        id
+    ]).then((data) => {
+        res.status(200).json({
+            message: data[0].deletedata.message,
+            nomeProduto: data[0].deletedata.nomeDoProduto,
+        });
+    });
+
 }
 
 module.exports = {
-  getData,
-  insertData,
-  changeData
+    getData,
+    getDataId,
+    insertData,
+    changeData,
+    deleteData
 }
