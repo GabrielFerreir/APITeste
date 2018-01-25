@@ -21,11 +21,8 @@ CREATE OR REPLACE FUNCTION getDataId(
   "preco" NUMERIC(10,2)
 ) AS  $$
         BEGIN
-          IF SELECT i.id, i.nome, i.preco FROM item i WHERE i.id = pId
-          THEN
             RETURN QUERY
             SELECT i.id, i.nome, i.preco FROM item i WHERE i.id = pId;
-          ELSE
         END;
       $$
   LANGUAGE plpgsql;

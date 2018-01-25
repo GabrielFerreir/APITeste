@@ -3,7 +3,7 @@ var db = require('../db-config');
 function getData(req, res) {
     console.log(req.body);
     db.func('getData')
-        .then((data) => res.json(data));
+        .then((data) => res.json(data[0]));
 }
 
 function getDataId(req, res) {
